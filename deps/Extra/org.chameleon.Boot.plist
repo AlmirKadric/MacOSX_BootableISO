@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Kernel</key>
-	<string>amd_10.9.4_rc3</string>
+	<string>mach_kernel</string>
 	<key>Kernel Flags</key>
 	<string>-v</string>
 	<key>Timeout</key>

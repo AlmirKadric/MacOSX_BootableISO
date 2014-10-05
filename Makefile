@@ -17,7 +17,7 @@ EXTRA_DIR="./deps/Extra"
 
 # Chimera variables
 CHIMERA_DIR="./deps/Chimera"
-CHIMERA_REPO="http://forge.voodooprojects.org/svn/chameleon/branches/Chimera"
+CHIMERA_REPO="http://forge.voodooprojects.org/svn/chameleon/branches/Chimera@2400"
 
 # DTrace dependency for compiling XNU kernel
 DTRACE_VERSION="118.1"
@@ -36,11 +36,11 @@ OUTPUT_FOLDER=$(OUTPUT_FOLDER) INSTALLER_FILE=$(INSTALLER_FILE) INSTALLER_MOUNT=
 endef
 
 
-#
+# Define which function are not files and should not be cached
 .PHONY: help dep-chimera dep-dtrace dep-xnu deps all clean
 
 
-#
+# Help screen, this is also the default if no targets given
 help:
 	@echo "#######################################"
 	@echo "###       MacOSX Bootable ISO       ###"
@@ -51,9 +51,10 @@ help:
 	@echo "make clean  Deletes build files";
 	@echo "";
 
-#
+# Install Chimera branch of Chameleon and only build the files we need
 dep-chimera:
 	if [ ! -d "$(CHIMERA_DIR)" ]; then svn co "$(CHIMERA_REPO)" "$(CHIMERA_DIR)"; fi
+	make -C "${CHIMERA_DIR}" rebuild_config
 	make -C "${CHIMERA_DIR}/i386" modules-builtin
 	make -C "${CHIMERA_DIR}/i386/util"
 	make -C "${CHIMERA_DIR}/i386/klibc"
@@ -67,16 +68,21 @@ dep-chimera:
 	make -C "${CHIMERA_DIR}/i386/modules/Resolution"
 	make -C "${CHIMERA_DIR}/i386/modules/Sata"
 
+# Get and build dtrace tools that we need for compiling XNU kernel
 dep-dtrace:
 	$(call runWithVars, "./bin/InstallDTrace.sh")
 
+# Get XNU kernel source code. We don't build as this could contain
+# multiple branches that we may wish to compile. That will be done
+# in the install kernel step.
 dep-xnu:
 	if [ ! -d "$(XNU_DIR)" ]; then git clone "$(XNU_REPO)" "$(XNU_DIR)"; fi
 
+# Get and setup all required dependencies for the main execution
 deps: dep-chimera dep-dtrace dep-xnu
 
 
-#
+# The main target. This will create the ISO file
 all:
 	$(call runWithVars, "./bin/01_MakeSparse_ExtractBaseSystem.sh")
 	$(call runWithVars, "./bin/02_InstallChimera.sh")
@@ -86,7 +92,7 @@ all:
 	$(call runWithVars, "./bin/03_MakeISO.sh")
 
 
-#
+# Delete all build files and paths
 clean:
 	rm -f ./output/MacOSX-10.9.sparseimage
 	rm -f ./output/MacOSX-10.9.iso
