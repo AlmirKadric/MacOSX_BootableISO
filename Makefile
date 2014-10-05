@@ -37,7 +37,7 @@ endef
 
 
 #
-.PHONY: help dep-chimera dep-dtrace dep-xnu deps all
+.PHONY: help dep-chimera dep-dtrace dep-xnu deps all clean
 
 
 #
