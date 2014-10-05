@@ -88,5 +88,5 @@ all:
 
 #
 clean:
-	rm ./output/MacOSX-10.9.sparseimage
-	rm ./output/MacOSX-10.9.iso
+	rm -f ./output/MacOSX-10.9.sparseimage
+	rm -f ./output/MacOSX-10.9.iso
