@@ -37,8 +37,19 @@ endef
 
 
 #
-.PHONY: dep-chimera dep-dtrace dep-xnu deps all
+.PHONY: help dep-chimera dep-dtrace dep-xnu deps all
 
+
+#
+help:
+	@echo "#######################################"
+	@echo "###       MacOSX Bootable ISO       ###"
+	@echo "#######################################"
+	@echo "";
+	@echo "make deps   Get & builds all required dependencies";
+	@echo "make all    Build sparse image and bootable ISO";
+	@echo "make clean  Deletes build files";
+	@echo "";
 
 #
 dep-chimera:
@@ -73,3 +84,9 @@ all:
 #	$(call runWithVars, "./bin/02_PatchKexts.sh")
 #	$(call runWithVars, "./bin/02_CreateInstallerPacakges.sh")
 	$(call runWithVars, "./bin/03_MakeISO.sh")
+
+
+#
+clean:
+	rm ./output/MacOSX-10.9.sparseimage
+	rm ./output/MacOSX-10.9.iso
