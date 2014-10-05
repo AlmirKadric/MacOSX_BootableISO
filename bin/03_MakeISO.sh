@@ -1,12 +1,19 @@
 #!/bin/bash -e -x
 
+# Set bash options
+set -o errexit;
+set -o nounset;
 
-INSTALLER_FILE="/Applications/Install OS X Mavericks.app/Contents/SharedSupport/InstallESD.dmg"
-INSTALLER_MOUNT="/Volumes/install_app"
 
-OSX_NAME="MacOSX-10.9"
-IMAGE_FILE="./${OSX_NAME}"
-IMAGE_MOUNT="/Volumes/install_build"
+# Make sure required variables have been passed in
+if	[ -z "${IMAGE_FILE:-}" ] ||
+	[ -z "${IMAGE_MOUNT:-}" ]
+then
+	echo "Missing required environment variables"
+	echo "This script should be called from the makefile"
+	echo "run command 'make all'"
+	exit 1
+fi
 
 
 # Resize the partition in the sparse bundle to remove any free space

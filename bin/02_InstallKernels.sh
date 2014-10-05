@@ -1,12 +1,28 @@
-#!/bin/bash -e -x
+#!/bin/bash -x
+
+# Set bash options
+set -o errexit;
+set -o nounset;
 
 
-INSTALLER_FILE="/Applications/Install OS X Mavericks.app/Contents/SharedSupport/InstallESD.dmg"
-INSTALLER_MOUNT="/Volumes/install_app"
+# Make sure required variables have been passed in
+AMD_RELEASE_TAG='mach_10_9_4_bronya_rc3'
 
-OSX_NAME="MacOSX-10.9"
-IMAGE_FILE="./${OSX_NAME}"
-IMAGE_MOUNT="/Volumes/install_build"
+if	[ -z "${IMAGE_FILE:-}" ] ||
+	[ -z "${IMAGE_MOUNT:-}" ] ||
+	[ -z "${XNU_DIR:-}" ] ||
+	[ -z "${DTRACE_BIN:-}" ]
+then
+	echo "Missing required environment variables"
+	echo "This script should be called from the makefile"
+	echo "run command 'make all'"
+fi
+
+# Check dependencies installed
+if [ ! -e "${XNU_DIR}" ]; then
+	echo "You need to run 'make deps' to continue"
+	exit 1
+fi
 
 
 # Make sure sparse image file is not mounted and 8g in size
@@ -28,23 +44,12 @@ if [ ! -e "${IMAGE_MOUNT}/mach_kernel" ]; then
 fi
 
 
-# Copy AMD patched kernel and extensions
-cp "./Kernels/mach_10_9_2_fx_bronya_rc1/mach_kernel" "${IMAGE_MOUNT}/amdfx_10.9.2_rc1"
-cp "./Kernels/mach_10_9_2_fx_bronya_rc2/mach_kernel" "${IMAGE_MOUNT}/amdfx_10.9.2_rc2"
-cp "./Kernels/mach_10_9_2_fx_bronya_rc3/mach_kernel" "${IMAGE_MOUNT}/amdfx_10.9.2_rc3"
-cp "./Kernels/mach_10_9_2_fx_bronya_rc4/secure/mach_kernel" "${IMAGE_MOUNT}/amdfx_10.9.2_rc4"
-cp "./Kernels/mach_10_9_2_fx_bronya_rc4_test/mach_kernel" "${IMAGE_MOUNT}/amdfx_10.9.2_rc4_test"
-cp "./Kernels/mach_10_9_2_fx_bronya_rc5/mach_kernel" "${IMAGE_MOUNT}/amdfx_10.9.2_rc5"
-cp "./Kernels/mach_10_9_2_fx_bronya_rc6/for FX/mach_kernel" "${IMAGE_MOUNT}/amdfx_10.9.2_rc6"
-cp "./Kernels/mach_10_9_2_fx_bronya_rc6_fix/mach_kernel" "${IMAGE_MOUNT}/amdfx_10.9.2_rc6_fix"
-cp "./Kernels/mach_10_9_4_rc1/mach_kernel" "${IMAGE_MOUNT}/amd_10.9.4_rc1"
-cp "./Kernels/mach_10_9_4_rc2/mach_kernel" "${IMAGE_MOUNT}/amd_10.9.4_rc2"
-cp "./Kernels/mach_10_9_4_rc3/FX/mach_kernel" "${IMAGE_MOUNT}/amd_10.9.4_rc3"
-
-
-# The current blessed kernels
-BLESSED_KERNEL_AMD="amd_10.9.4_rc3"
-(cd "${IMAGE_MOUNT}"; ln -s "${BLESSED_KERNEL_AMD}" "amd")
+# Build and install bronya's AMD patched kernel
+pushd "${XNU_DIR}"
+git checkout "${AMD_RELEASE_TAG}"
+PATH="${PATH}:${DTRACE_BIN}" make ARCH_CONFIGS=X86_64 KERNEL_CONFIGS=RELEASE
+cp "./BUILD/obj/RELEASE_X86_64/mach_kernel" "${IMAGE_MOUNT}/amd"
+popd
 
 
 # Unmount the sparse bundle

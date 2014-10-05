@@ -1,2 +1,6 @@
+/deps/Chimera
+/deps/dtrace-*
+/deps/MacOSX_xnuKernel
 /output
 .DS_Store
+*.swp

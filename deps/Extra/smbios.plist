@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SMfamily</key>
+	<string>MacBook Pro</string>
+	<key>SMproductname</key>
+	<string>MacBookPro8,1</string>
+	<key>SMboardproduct</key>
+	<string>Mac-94245B3640C91C81</string>
+	<key>SMserial</key>
+	<string>C02F93FQDH2G</string>
+	<key>SMbiosversion</key>
+	<string>http://github.com/AlmirKadric</string>
+</dict>
+</plist>
